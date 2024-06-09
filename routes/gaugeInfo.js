@@ -40,4 +40,28 @@ router.post('/:roundIdx', (req, res) => {
     })
 })
 
+router.get('/result', (req, res) => {
+    const userId = 1
+    const query = `select firstScore, secondScore, thirdScore from user where id = ${userId}`
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error retrieving scores:', err)
+            res.status(500).json({ error: 'Error retrieving scores' })
+        } else {
+            if (results.length > 0) {
+                const scores = {
+                    firstScore: results[0].firstScore,
+                    secondScore: results[0].secondScore,
+                    thirdScore: results[0].thirdScore
+                }
+                res.status(200).json(scores)
+            } else {
+                res.status(404).json({ error: 'Scores not found' })
+            }
+        }
+    })
+
+})
+
 module.exports = router
