@@ -75,12 +75,35 @@ router.get('/result', (req, res) => {
                     finalScore: results[0].finalScore
                 }
                 res.status(200).json(scores)
+
+                let changeQuery = ''
+                if (scores.finalScore >= 80) changeQuery = `update user set changeOX='O' where id=${userId}`
+                else changeQuery = `update user set changeOX='X' where id=${userId}`
+
+                db.query(changeQuery, (err, updateResults) => {
+                    if (err) {
+                        console.error('Error updating finalScore:', err)
+                        return res.status(500).json({ error: 'Error updating finalScore' })
+                    }
+                })
             } else {
                 res.status(404).json({ error: 'Scores not found' })
             }
         }
     })
 
+})
+
+router.get('/change', (req, res) => {
+
+    const userId = 1
+    const query = `select changeOX from user where id=${userId}`
+
+    db.query(query, (err, result) => {
+        if (err) return res.status(500).json({ error: 'Error' })
+        const change = { changeOX: result[0].changeOX }
+        res.status(200).json({ change })
+    })
 })
 
 module.exports = router
