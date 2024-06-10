@@ -95,14 +95,13 @@ router.get('/result', (req, res) => {
 })
 
 router.get('/change', (req, res) => {
-
     const userId = 1
     const query = `select changeOX from user where id=${userId}`
 
     db.query(query, (err, result) => {
         if (err) return res.status(500).json({ error: 'Error' })
-        const change = { changeOX: result[0].changeOX }
-        res.status(200).json({ change })
+        const changeOX = result[0].changeOX
+        res.status(200).json({ changeOX })
     })
 })
 
