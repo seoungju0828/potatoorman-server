@@ -77,7 +77,7 @@ router.get('/result', (req, res) => {
                 res.status(200).json(scores)
 
                 let changeQuery = ''
-                if (scores.finalScore >= 80) changeQuery = `update user set changeOX='O' where id=${userId}`
+                if (scores.finalScore >= 64) changeQuery = `update user set changeOX='O' where id=${userId}`
                 else changeQuery = `update user set changeOX='X' where id=${userId}`
 
                 db.query(changeQuery, (err, updateResults) => {
