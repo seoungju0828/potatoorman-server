@@ -9,7 +9,7 @@ router.post('/:roundIdx', (req, res) => {
     const { counter } = req.body
     const userId = 1
 
-    console.log(roundIdx)
+    // console.log(roundIdx)
 
     let score = '';
     switch (roundIdx) {
@@ -27,7 +27,7 @@ router.post('/:roundIdx', (req, res) => {
             break
     }
 
-    console.log(score)
+    // console.log(score)
     const query = `UPDATE user SET ${score} = ${counter} WHERE id = ${userId}`
 
     db.query(query, (err, result) => {
