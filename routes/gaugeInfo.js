@@ -4,14 +4,23 @@ const db = require('../config/db')
 
 router.use(express.json())
 
+router.use((req, res, next) => {
+    next()
+})
+
+router.use((req, res, next) => {
+    if (!req.session.userId) {
+        req.session.userId = 0
+    }
+    next()
+})
+
 router.post('/:roundIdx', (req, res) => {
+    let userId = req.session.userId || 0
     const roundIdx = parseInt(req.params.roundIdx)
     const { counter } = req.body
-    const userId = 1
 
-    // console.log(roundIdx)
-
-    let score = '';
+    let score = ''
     switch (roundIdx) {
         case 1:
             score = 'firstScore'
@@ -27,7 +36,6 @@ router.post('/:roundIdx', (req, res) => {
             break
     }
 
-    // console.log(score)
     const query = `UPDATE user SET ${score} = ${counter} WHERE id = ${userId}`
 
     db.query(query, (err, result) => {
@@ -59,7 +67,7 @@ router.post('/:roundIdx', (req, res) => {
 })
 
 router.get('/result', (req, res) => {
-    const userId = 1
+    let userId = req.session.userId || 0
     const query = `select firstScore, secondScore, thirdScore, finalScore from user where id = ${userId}`
 
     db.query(query, (err, results) => {
@@ -95,7 +103,7 @@ router.get('/result', (req, res) => {
 })
 
 router.get('/change', (req, res) => {
-    const userId = 1
+    let userId = req.session.userId || 0
     const query = `select changeOX from user where id=${userId}`
 
     db.query(query, (err, result) => {
