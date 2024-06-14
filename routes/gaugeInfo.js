@@ -50,7 +50,7 @@ router.post('/:roundIdx', (req, res) => {
                     return res.status(500).json({ error: 'Error fetching sum' })
                 }
 
-                const sum = results[0].sum / 3
+                let sum = results[0].sum / 3
 
                 const finalScoreQuery = `update user set finalScore = ${sum} where id = ${userId}`
                 db.query(finalScoreQuery, (err, result) => {
@@ -77,23 +77,12 @@ router.get('/result', (req, res) => {
         } else {
             if (results.length > 0) {
                 const scores = {
-                    firstScore: results[0].firstScore,
-                    secondScore: results[0].secondScore,
-                    thirdScore: results[0].thirdScore,
-                    finalScore: results[0].finalScore
+                    firstScore: results[0].firstScore || 0,
+                    secondScore: results[0].secondScore || 0,
+                    thirdScore: results[0].thirdScore || 0,
+                    finalScore: results[0].finalScore || 0
                 }
                 res.status(200).json(scores)
-
-                let changeQuery = ''
-                if (scores.finalScore >= 64) changeQuery = `update user set changeOX='O' where id=${userId}`
-                else changeQuery = `update user set changeOX='X' where id=${userId}`
-
-                db.query(changeQuery, (err, updateResults) => {
-                    if (err) {
-                        console.error('Error updating finalScore:', err)
-                        return res.status(500).json({ error: 'Error updating finalScore' })
-                    }
-                })
             } else {
                 res.status(404).json({ error: 'Scores not found' })
             }
@@ -104,12 +93,47 @@ router.get('/result', (req, res) => {
 
 router.get('/change', (req, res) => {
     let userId = req.session.userId || 0
-    const query = `select changeOX from user where id=${userId}`
+    const finalScoreQuery = `SELECT finalScore FROM user WHERE id = ${userId}`
 
-    db.query(query, (err, result) => {
-        if (err) return res.status(500).json({ error: 'Error' })
-        const changeOX = result[0].changeOX
-        res.status(200).json({ changeOX })
+    db.query(finalScoreQuery, (err, results) => {
+        if (err) {
+            console.error('Error retrieving finalScore:', err)
+            return res.status(500).json({ error: 'Error retrieving finalScore' })
+        }
+
+        if (results.length > 0) {
+            const finalScore = results[0].finalScore || 0
+
+            let changeOX = finalScore >= 64 ? 'O' : 'X'
+
+            const updateQuery = `UPDATE user SET changeOX='${changeOX}' WHERE id=${userId}`
+            db.query(updateQuery, (err, updateResults) => {
+                if (err) {
+                    console.error('Error updating changeOX:', err)
+                    return res.status(500).json({ error: 'Error updating changeOX' })
+                }
+
+                console.log('Updated changeOX:', changeOX)
+
+                const getChangeOXQuery = `SELECT changeOX FROM user WHERE id=${userId}`
+                db.query(getChangeOXQuery, (err, result) => {
+                    if (err) {
+                        console.error('Error fetching changeOX:', err)
+                        return res.status(500).json({ error: 'Error fetching changeOX' })
+                    }
+
+                    if (result.length > 0) {
+                        let fetchedChangeOX = result[0].changeOX
+                        console.log('Fetched changeOX:', fetchedChangeOX)
+                        res.status(200).json({ changeOX: fetchedChangeOX })
+                    } else {
+                        res.status(404).json({ error: 'changeOX not found' })
+                    }
+                })
+            })
+        } else {
+            res.status(404).json({ error: 'Final score not found' })
+        }
     })
 })
 
