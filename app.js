@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const session = require('express-session')
 const sessionConfig = require('./config/session')
+const cors = require('cors')
 const db = require('./config/db')
 
 const crypto = require('crypto')
@@ -14,6 +15,10 @@ const gaugeInfoRoute = require('./routes/gaugeInfo')
 
 const app = express()
 app.use(session(sessionConfig));
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, 'frontend/build')))
 app.use(express.static(path.join(__dirname, 'public')))
