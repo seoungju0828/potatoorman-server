@@ -1,5 +1,6 @@
 # Dependency directories
 node_modules/
+*.pem
 
 # React directories
 frontend/node_modules
