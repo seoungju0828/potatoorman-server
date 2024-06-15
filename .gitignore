@@ -2,7 +2,13 @@
 node_modules/
 
 # React directories
-frontend/
+frontend/node_modules
+frontend/public
+frontend/src
+frontend/.gitignore
+frontend/package-lock.json
+frontend/package.json
+frontend/README.md
 
 # db
 config/
